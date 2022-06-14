@@ -1,7 +1,13 @@
 const User = require("../models/Users");
 
-exports.register = (req, res, next) => {
+exports.register = async (req, res, next) => {
   const { name, email, password } = req.body;
+  const userCheck = await User.findOne({ email });
+  if (userCheck) {
+    return res.status(400).json({
+      error: "User already exists",
+    });
+  }
   const user = new User({
     name,
     email,
@@ -14,11 +20,7 @@ exports.register = (req, res, next) => {
     });
   }
 
-  // if (email === user.email) {
-  //   return res.status(400).json({
-  //     error: "Email already exists",
-  //   });
-  // }
+
   user.save();
   res.status(201).json({ success: true, message: "User created successfully" });
 };
