@@ -19,10 +19,14 @@ exports.register = async (req, res, next) => {
       error: "Please provide all fields",
     });
   }
-
-
-  user.save();
-  res.status(201).json({ success: true, message: "User created successfully" });
+  try {
+    user.save();
+    sendToken(user, 201, res);
+  } catch (error) {
+    res.status(400).json({
+      error: error,
+    });
+  }
 };
 
 exports.login = async (req, res, next) => {
@@ -47,8 +51,13 @@ exports.login = async (req, res, next) => {
       });
     }
 
-    res.status(200).json({ success: true, token: "dsfdst5rff" });
+    sendToken(user, 200, res);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
+};
+
+const sendToken = (user, statusCode, res) => {
+  const token = user.getSignedToken();
+  res.status(statusCode).json({ success: true, token });
 };
